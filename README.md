@@ -53,6 +53,12 @@ npx github:swarm-t3/nocomment install
 
 (`npx github:swarm-t3/nocomment uninstall` removes it and you also get a `settings.json.nocomment-backup`.)
 
+**For a whole team**, run this in the repo and commit the three files it creates (`.claude/hooks/nocomment.js`, `.claude/settings.json`, `.nocomment.json`):
+
+```
+npx github:swarm-t3/nocomment init
+```
+
 ## How bad is it for you? `stats`
 
 ```
@@ -91,6 +97,20 @@ npx github:swarm-t3/nocomment check --staged             # pre-commit
 ```
 
 Exits 1 when it finds comments to remove and prints GitHub annotations when it runs in Actions. Add `--warn-only` to report without failing.
+
+As a GitHub Action on pull requests (inline warnings on the PR diff):
+
+```yaml
+on: pull_request
+jobs:
+  nocomment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: swarm-t3/nocomment@main
+        with: { mode: balanced, fail: false }
+```
 
 ## Languages
 

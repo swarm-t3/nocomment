@@ -1,6 +1,6 @@
 {
   "name": "nocomment",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Stops Claude from flooding your code with comments. A deterministic hook catches comments that narrate the chat or blow the comment budget right after each edit and makes Claude delete them.",
   "author": { "name": "No Comment" },
   "homepage": "https://swarm-t3.github.io/nocomment/",

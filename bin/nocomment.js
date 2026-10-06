@@ -22,6 +22,7 @@ function help() {
 
   nocomment stats [--days 30] [--json]   How much of the code Claude Code wrote for you is comments
   nocomment check [--base <ref>]        Flag excessive / chat-narrating comments added in a git diff (CI, pre-commit)
+  nocomment init                        Set up the hook for this repo (commit it so the whole team gets it)
   nocomment install                     Add the No Comment hook to ~/.claude/settings.json (no plugin needed)
   nocomment uninstall                   Remove it again
   nocomment hook pre|post               (used by the Claude Code hook)
@@ -172,13 +173,33 @@ function install() {
   console.log(`No Comment hook installed in ${SETTINGS} (backup: settings.json.nocomment-backup).\nRestart Claude Code. Tune it with a .nocomment.json in your repo: {"mode": "strict"}`);
 }
 
-function uninstallFrom(s) {
+function uninstallFrom(s, mark = MARK) {
   if (!s.hooks) return;
   for (const ev of ['PreToolUse', 'PostToolUse']) {
     if (!s.hooks[ev]) continue;
-    s.hooks[ev] = s.hooks[ev].filter((g) => !(g.hooks || []).some((h) => String(h.command).includes(MARK)));
+    s.hooks[ev] = s.hooks[ev].filter((g) => !(g.hooks || []).some((h) => String(h.command).includes(mark)));
     if (!s.hooks[ev].length) delete s.hooks[ev];
   }
+}
+
+function init() {
+  const dir = process.cwd();
+  const hookDst = path.join(dir, '.claude', 'hooks', 'nocomment.js');
+  fs.mkdirSync(path.dirname(hookDst), { recursive: true });
+  fs.copyFileSync(path.join(__dirname, '..', 'dist', 'nocomment-hook.js'), hookDst);
+  fs.chmodSync(hookDst, 0o755);
+  const sp = path.join(dir, '.claude', 'settings.json');
+  let s = {};
+  try { s = JSON.parse(fs.readFileSync(sp, 'utf8')); } catch {}
+  uninstallFrom(s, 'nocomment.js');
+  s.hooks = s.hooks || {};
+  const cmd = (ph) => `node "$CLAUDE_PROJECT_DIR/.claude/hooks/nocomment.js" ${ph}`;
+  (s.hooks.PreToolUse = s.hooks.PreToolUse || []).push({ matcher: 'Write', hooks: [{ type: 'command', command: cmd('pre'), timeout: 10 }] });
+  (s.hooks.PostToolUse = s.hooks.PostToolUse || []).push({ matcher: 'Edit|MultiEdit|Write', hooks: [{ type: 'command', command: cmd('post'), timeout: 10 }] });
+  fs.writeFileSync(sp, JSON.stringify(s, null, 2) + '\n');
+  const cfg = path.join(dir, '.nocomment.json');
+  if (!fs.existsSync(cfg)) fs.writeFileSync(cfg, JSON.stringify({ mode: 'balanced', ignore: [] }, null, 2) + '\n');
+  console.log('No Comment set up for this repo:\n  .claude/hooks/nocomment.js\n  .claude/settings.json (hooks)\n  .nocomment.json (policy)\nCommit these three files and everyone on the team who uses Claude Code in this repo gets the same comment policy.');
 }
 
 function uninstall() {
@@ -193,6 +214,7 @@ if (cmd === 'hook') require('../lib/hook').run(args[1]);
 else if (cmd === 'stats') stats();
 else if (cmd === 'check') check();
 else if (cmd === 'install') install();
+else if (cmd === 'init') init();
 else if (cmd === 'uninstall') uninstall();
 else if (cmd === '--version' || cmd === '-v') console.log(VERSION);
 else help();
