@@ -394,7 +394,7 @@ function run(phase) {
   }
 }
 
-module.exports = { run, post, pre };
+module.exports = { run, post, pre, patchChanges };
 
 return module.exports; })();
 __m.hook.run(process.argv[2] || 'post');

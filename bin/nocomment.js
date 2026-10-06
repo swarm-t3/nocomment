@@ -85,19 +85,55 @@ function stats() {
       }
     }
   }
+  const codexRoot = path.join(os.homedir(), '.codex', 'sessions');
+  const { patchChanges } = require('../lib/hook');
+  let codexEdits = 0;
+  for (const file of walk(codexRoot)) {
+    let st;
+    try { st = fs.statSync(file); } catch { continue; }
+    if (st.mtimeMs < since) continue;
+    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+      if (!line.includes('Begin Patch')) continue;
+      let j;
+      try { j = JSON.parse(line); } catch { continue; }
+      const p = j.payload || {};
+      if (p.type !== 'custom_tool_call' && p.type !== 'function_call') continue;
+      let src = p.input || p.arguments || '';
+      if (typeof src === 'string' && src.trim().startsWith('{')) { try { const a = JSON.parse(src); src = a.input || a.patch || a.command || a.code || src; } catch {} }
+      if (Array.isArray(src)) src = src.join('\n');
+      src = String(src);
+      const patches = [];
+      if (src.trim().startsWith('*** Begin Patch')) patches.push(src);
+      else {
+        // Code-mode exec: the patch is a JS string literal.
+        for (const m of src.matchAll(/"(\*\*\* Begin Patch(?:[^"\\]|\\.)*)"/g)) { try { patches.push(JSON.parse('"' + m[1] + '"')); } catch {} }
+        for (const m of src.matchAll(/`(\*\*\* Begin Patch[^`]*)`/g)) patches.push(m[1]);
+      }
+      for (const ch of patches.flatMap((x) => patchChanges(x, '/'))) {
+        const r = addedComments(ch.before, ch.after, ch.file);
+        if (!r) continue;
+        t.edits++; codexEdits++; t.files.add(ch.file); t.sessions.add(file);
+        t.code += r.addedCode;
+        for (const x of r.added) {
+          if (x.doc) t.doc++; else t.comment++;
+          if (x.chatref) { t.chat++; if (examples.length < 400) examples.push({ file: path.basename(ch.file), text: x.text.slice(0, 90) }); }
+        }
+      }
+    }
+  }
   const total = t.code + t.comment + t.doc;
   const pct = (n) => (total ? ((100 * n) / total).toFixed(1) : '0.0');
   const out = {
-    days, sessions: t.sessions.size, files: t.files.size, edits: t.edits,
+    days, codexEdits, sessions: t.sessions.size, files: t.files.size, edits: t.edits,
     linesWritten: total, codeLines: t.code, commentLines: t.comment, docLines: t.doc,
     commentPct: Number(pct(t.comment + t.doc)), chatNarratingComments: t.chat,
   };
   if (flag('json', false)) return console.log(JSON.stringify(out, null, 2));
-  if (!t.edits) return console.log(`No Claude Code edits found in ${root} for the last ${days} days.`);
-  console.log(`\nNo Comment stats: what Claude Code wrote for you in the last ${days} days\n`);
-  console.log(`  ${t.sessions.size} sessions, ${t.files.size} files, ${t.edits} edits`);
+  if (!t.edits) return console.log(`No Claude Code or Codex edits found for the last ${days} days.`);
+  console.log(`\nNo Comment stats: what your coding agents wrote for you in the last ${days} days\n`);
+  console.log(`  ${t.sessions.size} sessions, ${t.files.size} files, ${t.edits} edits (${t.edits - codexEdits} Claude Code, ${codexEdits} Codex)`);
   console.log(`  ${total} lines written: ${t.code} code, ${t.comment} comments, ${t.doc} doc comments`);
-  console.log(`  => ${pct(t.comment + t.doc)}% of the lines Claude wrote are comments (${pct(t.comment)}% excluding docstrings)`);
+  console.log(`  => ${pct(t.comment + t.doc)}% of the lines your agents wrote are comments (${pct(t.comment)}% excluding docstrings)`);
   console.log(`  => ${t.chat} comments narrate the chat or the edit ("now uses", "changed from", "as requested", ...)\n`);
   if (examples.length) {
     console.log('  A few of those:');
