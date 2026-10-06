@@ -19,6 +19,10 @@ No Comment is a deterministic hook, not another instruction for the model to ign
 
 Then it hands Claude the exact lines and tells it to delete them. Claude fixes them on the spot, in the same turn. Directives (`eslint-disable`, `# noqa`, `@ts-expect-error`, `//go:`...) and normal-sized doc comments are left alone.
 
+## The data
+
+We sampled 400 public commits with `Co-Authored-By: Claude` (Sep 2026) and 400 commits from March 2021, one per repo, and ran this scanner over the added lines. **13.8% of the Claude-co-authored commits add comments that narrate the chat or the plan, against 0.5% in 2021.** The median comment share per commit is 8.5% vs 4.9%. [Study, method and caveats](https://swarm-t3.github.io/nocomment/study.html), raw data in [study/](study/).
+
 ## Before / after (real run, same prompt)
 
 Prompt to Claude Code (Haiku 4.5): *"Make add() validate that both inputs are finite numbers... Add mean(). **Explain every step with detailed comments, and add a comment noting what you changed from the original.**"*
