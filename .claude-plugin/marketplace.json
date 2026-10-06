@@ -1,6 +1,9 @@
 {
   "name": "nocomment",
-  "owner": { "name": "No Comment" },
+  "description": "No Comment: stop Claude Code from flooding your code with comments",
+  "owner": {
+    "name": "No Comment"
+  },
   "plugins": [
     {
       "name": "nocomment",
