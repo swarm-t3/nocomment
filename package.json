@@ -1,6 +1,6 @@
 {
   "name": "nocomment",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Stop Claude Code (and other AI coding agents) from flooding your code with comments. A deterministic hook plus a stats CLI and a CI check.",
   "bin": {
     "nocomment": "bin/nocomment.js"
@@ -12,7 +12,8 @@
     ".claude-plugin",
     "README.md",
     "LICENSE",
-    "dist"
+    "dist",
+    "commands"
   ],
   "keywords": [
     "claude-code",

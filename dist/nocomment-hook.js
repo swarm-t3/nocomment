@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// No Comment 0.3.0 (single-file hook build). https://github.com/swarm-t3/nocomment  MIT
+// No Comment 0.4.0 (single-file hook build). https://github.com/swarm-t3/nocomment  MIT
 // Usage in .claude/settings.json: node .claude/hooks/nocomment.js pre|post
 'use strict';
 const __m = {};
