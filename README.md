@@ -1,6 +1,6 @@
 # No Comment
 
-**Stop Claude Code from flooding your code with comments.**
+**Stop Claude Code (and Codex) from flooding your code with comments.**
 
 You put "don't over-comment" in CLAUDE.md. You put it in memory. You said it in the chat. Claude still writes
 
@@ -36,6 +36,8 @@ export function add(a: number, b: number): number {
   ...
 ```
 
+**Codex too.** The same rules run as a Codex `PostToolUse` hook on `apply_patch`. Same prompt with Codex: the hook blocked 11 new comment lines and Codex kept 2 ([file](docs/demo/codex-with-nocomment.ts), [log](docs/demo/codex-run.log)).
+
 ## Install
 
 **As a Claude Code plugin** (recommended), inside Claude Code:
@@ -51,7 +53,13 @@ export function add(a: number, b: number): number {
 npx github:swarm-t3/nocomment install
 ```
 
-(`npx github:swarm-t3/nocomment uninstall` removes it and you also get a `settings.json.nocomment-backup`.)
+**For Codex** (writes `~/.codex/hooks.json`; approve the hook in `/hooks` the first time):
+
+```
+npx github:swarm-t3/nocomment install --codex
+```
+
+(`npx github:swarm-t3/nocomment uninstall` removes the Claude Code hook and you also get a `settings.json.nocomment-backup`.)
 
 **For a whole team**, run this in the repo and commit the three files it creates (`.claude/hooks/nocomment.js`, `.claude/settings.json`, `.nocomment.json`):
 
@@ -122,7 +130,7 @@ The hook stays free and MIT. Pro is for teams reviewing AI-written PRs:
 
 - **PR bot**: one summary comment per PR ("31% of this diff is comments, 6 narrate the chat") plus inline suggestions you can apply in one click
 - **Org-wide policy** shared by every repo and every dev's agent
-- **Codex CLI, Cursor, Gemini CLI and Copilot** agent support, from the same rules
+- **Cursor, Gemini CLI and Copilot agent** support from the same rules (Claude Code and Codex are already in the free hook)
 - **Auto-strip**: removes the flagged comments for you before commit
 
 **Founding price: $49 lifetime for your whole team** (normally $9/dev/month). [Join the waitlist or pre-order](https://swarm-t3.github.io/nocomment/#pro).

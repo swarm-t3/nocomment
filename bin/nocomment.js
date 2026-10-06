@@ -22,8 +22,8 @@ function help() {
 
   nocomment stats [--days 30] [--json]   How much of the code Claude Code wrote for you is comments
   nocomment check [--base <ref>]        Flag excessive / chat-narrating comments added in a git diff (CI, pre-commit)
-  nocomment init                        Set up the hook for this repo (commit it so the whole team gets it)
-  nocomment install                     Add the No Comment hook to ~/.claude/settings.json (no plugin needed)
+  nocomment init [--codex]              Set up the hook for this repo (commit it so the whole team gets it)
+  nocomment install [--codex]           Add the hook to ~/.claude/settings.json, or to ~/.codex/hooks.json with --codex
   nocomment uninstall                   Remove it again
   nocomment hook pre|post               (used by the Claude Code hook)
 
@@ -152,13 +152,38 @@ const SETTINGS = path.join(os.homedir(), '.claude', 'settings.json');
 const APP = path.join(os.homedir(), '.nocomment', 'app');
 const MARK = 'nocomment hook';
 
+function codexHooks(file, cmdPost) {
+  let s = {};
+  try { s = JSON.parse(fs.readFileSync(file, 'utf8')); } catch {}
+  if (fs.existsSync(file)) fs.copyFileSync(file, file + '.nocomment-backup');
+  s.hooks = s.hooks || {};
+  s.hooks.PostToolUse = (s.hooks.PostToolUse || []).filter((g) => !(g.hooks || []).some((h) => /nocomment/.test(String(h.command))));
+  s.hooks.PostToolUse.push({ matcher: 'apply_patch', hooks: [{ type: 'command', command: cmdPost, timeout: 10 }] });
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(s, null, 2) + '\n');
+}
+
 function install() {
+  if (flag('codex', false)) {
+    copyApp();
+    const f = path.join(os.homedir(), '.codex', 'hooks.json');
+    codexHooks(f, `${JSON.stringify(process.execPath)} ${JSON.stringify(path.join(APP, 'bin', 'nocomment.js'))} hook post`);
+    return console.log(`No Comment hook installed for Codex in ${f}. Restart Codex and approve the hook when it asks you to trust it (/hooks).`);
+  }
+  copyApp();
+  installClaude();
+}
+
+function copyApp() {
   fs.mkdirSync(APP, { recursive: true });
   for (const d of ['bin', 'lib']) {
     fs.mkdirSync(path.join(APP, d), { recursive: true });
     for (const f of fs.readdirSync(path.join(__dirname, '..', d))) fs.copyFileSync(path.join(__dirname, '..', d, f), path.join(APP, d, f));
   }
   fs.copyFileSync(path.join(__dirname, '..', 'package.json'), path.join(APP, 'package.json'));
+}
+
+function installClaude() {
   let s = {};
   try { s = JSON.parse(fs.readFileSync(SETTINGS, 'utf8')); } catch {}
   fs.mkdirSync(path.dirname(SETTINGS), { recursive: true });
@@ -188,6 +213,10 @@ function init() {
   fs.mkdirSync(path.dirname(hookDst), { recursive: true });
   fs.copyFileSync(path.join(__dirname, '..', 'dist', 'nocomment-hook.js'), hookDst);
   fs.chmodSync(hookDst, 0o755);
+  if (flag('codex', false)) {
+    codexHooks(path.join(dir, '.codex', 'hooks.json'), 'node .claude/hooks/nocomment.js post');
+    console.log('Also wrote .codex/hooks.json (Codex runs hooks from the repo root; approve it in /hooks).');
+  }
   const sp = path.join(dir, '.claude', 'settings.json');
   let s = {};
   try { s = JSON.parse(fs.readFileSync(sp, 'utf8')); } catch {}

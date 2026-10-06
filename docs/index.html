@@ -46,7 +46,7 @@
   <h2>Install in 10 seconds</h2>
   <pre>/plugin marketplace add swarm-t3/nocomment
 /plugin install nocomment@nocomment</pre>
-  <p class="small">Or as a plain hook: <code>npx github:swarm-t3/nocomment install</code>. Node 18+, zero dependencies, MIT.</p>
+  <p class="small">Or as a plain hook: <code>npx github:swarm-t3/nocomment install</code>. <b>Codex:</b> <code>npx github:swarm-t3/nocomment install --codex</code>. <b>Whole team:</b> <code>npx github:swarm-t3/nocomment init</code> and commit the files. Node 18+, zero dependencies, MIT.</p>
 
   <h2>Same prompt, with and without</h2>
   <p class="small">Claude Code, Haiku 4.5, prompt: "make add() validate its inputs, add mean(), <b>explain every step with detailed comments and note what you changed</b>". <a href="https://github.com/swarm-t3/nocomment/tree/main/docs/demo">Raw files</a></p>
@@ -77,6 +77,8 @@ export function add(a, b) {
 }</pre></div>
   </div>
 
+  <p class="small">Codex too: same prompt, the hook blocked 11 new comment lines and Codex kept 2. <a href="https://github.com/swarm-t3/nocomment/blob/main/docs/demo/codex-run.log">Log</a></p>
+
   <h2>What it catches</h2>
   <ul>
     <li><b>Comments that narrate the chat or the edit:</b> "as you requested", "now uses", "changed from", "previously", "no longer", "unchanged", "CHANGED:". That history belongs in the commit message.</li>
@@ -100,7 +102,7 @@ export function add(a, b) {
   <ul>
     <li><b>PR bot:</b> one summary per PR ("31% of this diff is comments, 6 narrate the chat") plus inline suggestions you apply in one click</li>
     <li><b>Org-wide policy</b> shared by every repo and every developer's agent</li>
-    <li><b>Codex CLI, Cursor, Gemini CLI and Copilot agent</b> support from the same rules</li>
+    <li><b>Cursor, Gemini CLI and Copilot agent</b> support from the same rules (Claude Code and Codex are in the free hook)</li>
     <li><b>Auto-strip</b> of flagged comments before commit</li>
   </ul>
   <div class="card">
