@@ -1,0 +1,13 @@
+{
+  "name": "nocomment",
+  "owner": { "name": "No Comment" },
+  "plugins": [
+    {
+      "name": "nocomment",
+      "source": "./",
+      "description": "Stops Claude from flooding your code with comments: a deterministic PostToolUse hook that makes Claude delete chat-narrating and excessive comments right after each edit.",
+      "category": "productivity",
+      "homepage": "https://swarm-t3.github.io/nocomment/"
+    }
+  ]
+}
