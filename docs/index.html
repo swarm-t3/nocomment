@@ -41,6 +41,7 @@
   <h1>No Comment.<br><span>Make Claude Code stop over-commenting.</span></h1>
   <p class="lead">You've told it in CLAUDE.md, in memory and in the chat, and it still writes <code>// Now uses X as you requested</code>. No Comment is a hook, so the model can't skip it. It reads every edit Claude makes and hands back the exact comment lines to delete, and Claude deletes them in the same turn.</p>
   <a class="btn" href="https://github.com/swarm-t3/nocomment">Get it free on GitHub</a>
+  <a class="btn ghost" href="check.html">Check a PR (no install)</a>
   <a class="btn ghost" href="#pro">No Comment Pro for teams</a>
 
   <h2>Install in 10 seconds</h2>
@@ -91,6 +92,9 @@ export function add(a, b) {
   <h2>How bad is yours?</h2>
   <pre>npx github:swarm-t3/nocomment stats</pre>
   <p>Reads your local Claude Code transcripts (nothing leaves your machine) and prints the share of lines Claude wrote that are comments. Ours: <b>20% of 41,414 lines over 30 days.</b> <a href="https://github.com/swarm-t3/nocomment/discussions">Post yours.</a></p>
+
+  <h2>Check any PR, no install</h2>
+  <p>Paste a public GitHub PR or commit URL into the <a href="check.html">PR checker</a> to see its comment share and every line that narrates the chat. It runs in your browser.</p>
 
   <h2>You're not the only one</h2>
   <blockquote>"Tried many different approaches to getting the comments down (rules, hooks, instructions) but none seem to be effective."<br><a href="https://github.com/anthropics/claude-code/issues/65961">anthropics/claude-code#65961</a> (250+ 👍)</blockquote>

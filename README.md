@@ -67,6 +67,10 @@ npx github:swarm-t3/nocomment install --codex
 npx github:swarm-t3/nocomment init
 ```
 
+## Check a PR without installing anything
+
+[swarm-t3.github.io/nocomment/check.html](https://swarm-t3.github.io/nocomment/check.html): paste a public GitHub PR or commit URL to get its comment share and the list of lines No Comment would flag. It runs in your browser.
+
 ## How bad is it for you? `stats`
 
 ```
